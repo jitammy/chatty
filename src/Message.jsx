@@ -4,16 +4,21 @@ import React, { Component } from 'react';
 class Message extends Component {
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            type: "incomingMessage",
+            content: "",
+            username: ""
+        }
     }
     render() {
         return (
             <div className="message">
                 <span className="message-username">
-                    Anonymous1
+                    {this.state.username}
                 </span>
                 <span className="message-content">
-                    I won't be impressed with technology until I can download food.
+
+                    {this.state.content}
                 </span>
             </div>
         )
