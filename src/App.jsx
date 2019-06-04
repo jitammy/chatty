@@ -23,16 +23,21 @@ class App extends Component {
       username: this.state.currentUser.name,
       content: e.target.value
     };
-    // if person clicked enter then set stzte
+    // if person clicked enter then setState
     if(e.key === "Enter"){
       const messages = this.state.messages.concat(newMessage)
       this.setState({ messages: messages })
       document.getElementById('contentInput').value = ''
     }
   }
-  
+
   componentDidMount() {
     console.log("componentDidMount <App />");
+    this.socket = new WebSocket("ws://localhost:3001")
+
+    this.socket.onopen = function(event){
+      console.log("Listening on 3001 Client connected")
+    }
     setTimeout(() => {
       console.log("Simulating incoming message");
       const newMessage = { id: 3, username: "Michelle", content: "Hello there!" };
@@ -40,6 +45,8 @@ class App extends Component {
       this.setState({ messages: messages })
     }, 1000);
   };
+
+
   render() {
     return (
       <div className="body">
@@ -52,4 +59,6 @@ class App extends Component {
     )
   }
 };
+
+
 export default App;
