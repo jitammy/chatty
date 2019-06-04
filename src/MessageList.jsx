@@ -2,25 +2,21 @@ import React, { Component } from 'react';
 import Message from "./Message.jsx";
 import Notification from "./Notification.jsx";
 
-
 class MessageList extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {}
-    }
     render() {
         console.log("Rending Messagelist")
-        function getMessage(props){
 
-            const Messages = props.map((message)=><Message key={message.id} username={message.username} content={message.content}/>)
-            return Messages;
-        }
 
+        //function getMessage(props) {
+            const messageComponents = this.props.messages.map((message) => 
+            <Message key={message.id} message={message} />)
+            
+
+        //}
         return (
             <main className="messages">
+                {messageComponents}
 
-                {getMessage(this.props.messages)}
-             
             </main>
         )
     }
