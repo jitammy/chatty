@@ -7,8 +7,10 @@ const server = express()
     .use(express.static('public'))
     .listen(PORT, '0.0.0.0', 'localhost', () => console.log(`Listening on ${PORT}`));
 const wss = new SocketServer({ server });
+
 wss.on('connection', (ws) => {
     console.log('Client connected');
+    console.log(wss.clients.size)
     ws.on('message', message => {
         const parsedMessage = JSON.parse(message)
 
@@ -19,15 +21,16 @@ wss.on('connection', (ws) => {
             content: parsedMessage.content
         }
         const jsonToSend = JSON.stringify(clientMessage)
-        
+
         wss.clients.forEach(function each(client) {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(jsonToSend);
             }
-            // console.log(client.readyState, WebSocket.OPEN)
+
         })
 
         console.log(JSON.stringify(clientMessage))
     });
+
     ws.on('close', () => console.log('Client disconnected'));
 });

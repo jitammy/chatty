@@ -18,7 +18,6 @@ class App extends Component {
     this.socket = new WebSocket("ws://localhost:3001")
     this.socket.onopen = function (event) {
       console.log("Listening on 3001 Client connected")
-      // console.log(event)
     }
     setTimeout(() => {
       console.log("Simulating incoming message");
@@ -26,17 +25,35 @@ class App extends Component {
       const messages = this.state.messages.concat(newMessage)
       this.setState({ messages: messages })
     }, 1000);
+
     this.socket.onmessage = (event) => {
       let data = JSON.parse(event.data)
-      const incomingNewMessage = {
-        type: "incomingMessage",
-        id: data.id,
-        username: data.username,
-        content: data.content
+      switch(data.type){
+        case "incomingMessage": 
+            const incomingNewMessage = {
+              type: "incomingMessage",
+              id: data.id,
+              username: data.username,
+              content: data.content
+            }
+            const allMessages = this.state.messages.concat(incomingNewMessage)
+            this.setState({ messages: allMessages })
+          break;
+        case "incomingNotification":
+          const receivedNotification = {
+            type: "incomingNotification",
+            id: data.id,
+            content: data.content
+          }
+          const allNotifications = this.messages.concat(receivedNotification)
+          this.setState({messages: allNotifications})
+
+          break;
+        default: 
+          throw new Error("Unknown event type" + data.type)
       }
-      const allMessages = this.state.messages.concat(incomingNewMessage)
-      this.setState({ messages: allMessages })
-      console.log(this.state)
+      
+
     }
   };
   render() {
@@ -44,6 +61,7 @@ class App extends Component {
       <div className="body">
         <nav className="navbar">
           <a href="/" className="navbar-brand">Chatty</a>
+          <div className="onlineUsers">{this.state.users} users online</div>
         </nav>
         <MessageList messages={this.state.messages} />
         <ChatBar currentUser={this.state.currentUser} handleChange={this.handleChange.bind(this)} changeUser={this.changeUser.bind(this)} />
@@ -51,20 +69,20 @@ class App extends Component {
     )
   }
   handleChange(e) {
+    const oldName = (this.state.currentUser.name) ? this.state.currentUser.name : 'Anonymous'
     const newMessage = {
       type: 'postMessage',
-      username: this.state.currentUser.name,
+      username: oldName,
       content: e.target.value
     };
     // if person clicked enter then setState
     if (e.key === "Enter") {
-      // const messages = this.state.messages.concat(newMessage)
-      // this.setState({ messages: messages })
       console.log("this is the message in handleChange", newMessage)
       this.socket.send(JSON.stringify(newMessage))
       document.getElementById('contentInput').value = ''
     }
   }
+
   changeUser(e) {
     const newName = e.target.value;
     const oldName = (this.state.currentUser.name) ? this.state.currentUser.name : 'Anonymous'
@@ -75,7 +93,7 @@ class App extends Component {
           content: `${oldName} changed their name to ${newName}`
         }))
         this.setState({currentUser: { name: newName } })
-        // console.log(this.state.currentUser.name)
+
       }
     }
   }
