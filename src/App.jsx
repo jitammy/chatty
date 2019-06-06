@@ -86,16 +86,17 @@ class App extends Component {
   changeUser(e) {
     const newName = e.target.value;
     const oldName = (this.state.currentUser.name) ? this.state.currentUser.name : 'Anonymous'
+    this.setState({currentUser: { name: newName } })
     if (e.key === "Enter") {
       if (newName !== oldName) {
-        this.socket.send(JSON.stringify({
-          type: 'postNotification',
-          content: `${oldName} changed their name to ${newName}`
-        }))
-        this.setState({currentUser: { name: newName } })
+      this.socket.send(JSON.stringify({
+        type: 'postNotification',
+        content: `${oldName} changed their name to ${newName}`
+      }))
 
-      }
     }
+    }
+    
   }
 };
 export default App;
