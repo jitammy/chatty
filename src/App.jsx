@@ -13,7 +13,8 @@ class App extends Component {
     this.state = {
       users: 0,
       currentUser: { name: '' },
-      messages: []
+      messages: [],
+      usercolor: { color: '' }
     }
   }
   componentDidMount() {
@@ -26,23 +27,29 @@ class App extends Component {
     this.socket.onmessage = (event) => {
       let data = JSON.parse(event.data)
 
+      console.log('new message')
+
       switch (data.type) {
+
         case "incomingMessage":
           const receivedNewMessage = {
             type: "incomingMessage",
             id: data.id,
+            color: data.color,
             username: data.username,
             content: data.content
           }
           const allMessages = this.state.messages.concat(receivedNewMessage)
-          this.setState({ 
-            messages: allMessages 
+          this.setState({
+            messages: allMessages
           })
           break;
+
         case "incomingNotification":
           const receivedNotification = {
             type: "incomingNotification",
             id: data.id,
+            username: data.username,
             content: data.content
           }
           const allNotifications = this.state.messages.concat(receivedNotification)
@@ -51,6 +58,12 @@ class App extends Component {
 
         case "userNumber":
           this.setState({ users: data.userNumber })
+          break;
+
+        case "userColor":
+          if (this.state.usercolor.color == '') {
+            this.setState({ usercolor: data.usercolor })
+          }
           break;
 
         default:
@@ -71,18 +84,18 @@ class App extends Component {
       </div>
     )
   }
+
   handleChange(e) {
     const oldName = (this.state.currentUser.name) ? this.state.currentUser.name : 'Anonymous'
     const newMessage = {
       type: 'postMessage',
       username: oldName,
-      content: e.target.value
+      content: e.target.value,
+      color: this.state.usercolor
     };
     if (e.key === "Enter") {
-
       this.socket.send(JSON.stringify(newMessage))
       document.getElementById('contentInput').value = ''
-
     }
   }
 
@@ -98,7 +111,6 @@ class App extends Component {
         this.setState({
           currentUser: { name: newName }
         })
-
       }
     }
   }

@@ -11,6 +11,23 @@ const wss = new SocketServer({ server });
 wss.on('connection', (ws) => {
   console.log('Client connected');
 
+  var colors = ["red", "green", "blue", "yellow", "purple", "salmon", "#CCC"]
+  function random_color(items) {
+    return items[Math.floor(Math.random() * colors.length)]
+  }
+
+  wss.clients.forEach(function each(client) {
+    let selectedColor = random_color(colors)
+    console.log(selectedColor)
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type: "userColor",
+        usercolor: selectedColor
+      }))
+    }
+  })
+
+
   wss.clients.forEach(function each(client) {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify({
@@ -30,6 +47,7 @@ wss.on('connection', (ws) => {
           type: "incomingMessage",
           id: uuidv1(),
           username: parsedMessage.username,
+          color: parsedMessage.color,
           content: parsedMessage.content
         }
         wss.clients.forEach(function each(client) {
@@ -40,17 +58,15 @@ wss.on('connection', (ws) => {
         break;
 
       case "postNotification":
-          wss.clients.forEach(function each(client) {
-
-
-            if (client.readyState == WebSocket.OPEN) {
-                client.send(JSON.stringify(
-                    {
-                        type: 'incomingNotification',
-                        content: parsedMessage.content,
-                    }
-                ))
-            }
+        wss.clients.forEach(function each(client) {
+          if (client.readyState == WebSocket.OPEN) {
+            client.send(JSON.stringify(
+              {
+                type: 'incomingNotification',
+                content: parsedMessage.content,
+              }
+            ))
+          }
 
         })
         break;
