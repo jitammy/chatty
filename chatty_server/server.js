@@ -7,29 +7,55 @@ const server = express()
     .use(express.static('public'))
     .listen(PORT, '0.0.0.0', 'localhost', () => console.log(`Listening on ${PORT}`));
 const wss = new SocketServer({ server });
-
 wss.on('connection', (ws) => {
     console.log('Client connected');
-    console.log(wss.clients.size)
+
+    wss.clients.forEach(function each(client) {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: "userNumber",
+                userNumber: wss.clients.size
+            }))
+        }
+    })
+
     ws.on('message', message => {
         const parsedMessage = JSON.parse(message)
+        switch (parsedMessage.type) {
+            case "postMessage":
 
-        const clientMessage = {
-            type: "incomingMessage",
-            id: uuidv1(),
-            username: parsedMessage.username,
-            content: parsedMessage.content
+                wss.clients.forEach(function each(client) {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify(
+                            {
+                                type: "incomingMessage",
+                                id: uuidv1(),
+                                username: parsedMessage.username,
+                                content: parsedMessage.content
+                            }
+                        ));
+                    }
+                })
+
+                break;
+                
+            case "postNotification":
+
+                wss.clients.forEach(function each(client) {
+                    if (client.readyState == WebSocket.OPEN) {
+                        client.send(JSON.stringify(
+                            {
+                                type: 'incomingNotication',
+                                content: parsedMessage.content
+                            }
+                        ))
+                    }
+                })
+                break;
+
+
         }
-        const jsonToSend = JSON.stringify(clientMessage)
 
-        wss.clients.forEach(function each(client) {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(jsonToSend);
-            }
-
-        })
-
-        console.log(JSON.stringify(clientMessage))
     });
 
     ws.on('close', () => console.log('Client disconnected'));
