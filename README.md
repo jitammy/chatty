@@ -17,4 +17,4 @@ A simple-page application that can transmit messages in real-time
 * Run the development web server using the "npm start" command.
 * Run the Websocket server inside "./chatty_server" using "npm start" command.
 
-!["Chatty"]()
+!["Chatty"](https://github.com/jitammy/chatty/blob/master/build/chatty.png)
