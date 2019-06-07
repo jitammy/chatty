@@ -27,8 +27,6 @@ class App extends Component {
     this.socket.onmessage = (event) => {
       let data = JSON.parse(event.data)
 
-      console.log('new message')
-
       switch (data.type) {
 
         case "incomingMessage":
@@ -87,13 +85,14 @@ class App extends Component {
 
   handleChange(e) {
     const oldName = (this.state.currentUser.name) ? this.state.currentUser.name : 'Anonymous'
+    let trimedMessage = e.target.value.trim()
     const newMessage = {
       type: 'postMessage',
       username: oldName,
-      content: e.target.value,
+      content: trimedMessage,
       color: this.state.usercolor
     };
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && trimedMessage !== '') {
       this.socket.send(JSON.stringify(newMessage))
       document.getElementById('contentInput').value = ''
     }
