@@ -1,7 +1,7 @@
 Chatty App
 =====================
 
-A simple-page application that can transmit messages in real-time
+A simple-page application that can transmit messages in real-time, working with WebSockets in React.
 
 
 ### Dependencies
